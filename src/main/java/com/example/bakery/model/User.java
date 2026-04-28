@@ -1,11 +1,6 @@
 package com.example.bakery.model;
 
-/**
- * User - Base abstract class for all system users.
- * OOP: Encapsulation (private fields + getters/setters), Abstraction (abstract method),
- * Inheritance base (Customer and Staff extend this class).
- * Lecture 01, 02, 04, 05
- */
+
 public abstract class User {
 
     private int id;
@@ -26,16 +21,16 @@ public abstract class User {
         this.role = role;
     }
 
-    // Abstract method forces subclasses to provide specific behavior (Lecture 05)
+
     public abstract String getDashboardPath();
 
-    // Method Overriding - toString (Lecture 04)
+
     @Override
     public String toString() {
         return id + "," + username + "," + password + "," + email + "," + phone + "," + role;
     }
 
-    // Getters and Setters (Encapsulation - Lecture 02)
+   
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
     public String getUsername() { return username; }
