@@ -1,52 +1,54 @@
 package com.example.bakery.model;
 
+
 public class PerishableProduct extends Product {
 
-    private String expiryDate;   // e.g. "2025-12-31"
-    private int shelfLifeDays;
+    private String expiryDate;
+    private double discountRate; 
 
-    public PerishableProduct(int id, String name, double price, String category,
-                             int stockQuantity, String expiryDate, int shelfLifeDays) {
-        super(id, name, price, category, stockQuantity); // calls parent constructor
+    public PerishableProduct() { super(); }
+
+    public PerishableProduct(int id, String name, String description, double price,
+                              int stockQuantity, String category, String expiryDate) {
+        super(id, name, description, price, stockQuantity, category);
         this.expiryDate = expiryDate;
-        this.shelfLifeDays = shelfLifeDays;
+        this.discountRate = 0.0;
     }
 
-    // Polymorphism: overrides abstract method from Product
+   
     @Override
     public String getDisplayPrice() {
-        return String.format("Rs. %.2f (Expires: %s)", getPrice(), expiryDate);
+        if (discountRate > 0) {
+            double discounted = getPrice() * (1 - discountRate);
+            return String.format("Rs. %.2f (%.0f%% off - Near Expiry!)", discounted, discountRate * 100);
+        }
+        return String.format("Rs. %.2f", getPrice());
     }
 
     @Override
-    public String getProductType() {
-        return "PERISHABLE";
-    }
+    public String getType() { return "PERISHABLE"; }
 
-    // Serialize to CSV: id,name,price,category,stock,type,expiryDate,shelfLifeDays
     @Override
-    public String toCsvLine() {
-        return getId() + "," + getName() + "," + getPrice() + "," + getCategory() + ","
-                + getStockQuantity() + ",PERISHABLE," + expiryDate + "," + shelfLifeDays;
+    public String toString() {
+        return super.toString() + "," + expiryDate + "," + discountRate;
     }
 
-    // Parse from CSV line
-    public static PerishableProduct fromCsvLine(String line) {
-        String[] p = line.split(",");
-        return new PerishableProduct(
-                Integer.parseInt(p[0].trim()),
-                p[1].trim(),
-                Double.parseDouble(p[2].trim()),
-                p[3].trim(),
-                Integer.parseInt(p[4].trim()),
-                p[6].trim(),
-                Integer.parseInt(p[7].trim())
-        );
+    public static PerishableProduct fromLine(String line) {
+        String[] p = line.split(",", -1);
+        if (p.length < 9) return null;
+        try {
+            PerishableProduct prod = new PerishableProduct(
+                Integer.parseInt(p[0].trim()), p[1].trim(), p[2].trim(),
+                Double.parseDouble(p[3].trim()), Integer.parseInt(p[4].trim()),
+                p[5].trim(), p.length > 8 ? p[8].trim() : ""
+            );
+            if (p.length > 9) prod.setDiscountRate(Double.parseDouble(p[9].trim()));
+            return prod;
+        } catch (NumberFormatException e) { return null; }
     }
 
     public String getExpiryDate() { return expiryDate; }
     public void setExpiryDate(String expiryDate) { this.expiryDate = expiryDate; }
-
-    public int getShelfLifeDays() { return shelfLifeDays; }
-    public void setShelfLifeDays(int shelfLifeDays) { this.shelfLifeDays = shelfLifeDays; }
+    public double getDiscountRate() { return discountRate; }
+    public void setDiscountRate(double discountRate) { this.discountRate = discountRate; }
 }
